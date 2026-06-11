@@ -1,0 +1,6 @@
+{
+  "name": "Siemens Dishwasher Scheduler",
+  "description": "מערכת תזמון הפעלות בטיחותית למדיח כלים Siemens דרך Home Connect API עם בדיקת סנסורים ודלת סגורה",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
