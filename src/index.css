@@ -1,39 +1,81 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --color-siemens-blue: #005f7a;
-  --color-siemens-dark: #00465a;
-  --color-siemens-light: #e0f2fe;
+  --color-brand: #0ea5e9;
+  --color-brand-dark: #0284c7;
+  --color-brand-teal: #005f7a;
+  --color-surface: #1e293b;
+  --color-surface-2: #263548;
+  --color-border: #2e4462;
+}
+
+:root {
+  color-scheme: dark;
 }
 
 body {
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  background-color: #f1f5f9;
+  font-family: 'DM Sans', 'Helvetica Neue', Arial, sans-serif;
+  background-color: #0f172a;
+  color: #f1f5f9;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: contain;
 }
 
-/* Custom fade-in and geometric animations */
+/* Fade-in animation */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+.animate-fade-in { animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.animate-slide-up { animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+/* Safe-area padding for bottom nav */
+.pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
+
+/* Subtle glass card */
+.glass-card {
+  background: rgba(30, 41, 59, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
-/* Scrollbar styling */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+/* Input dark */
+.input-dark {
+  background: #0f1f35;
+  border: 1px solid #2e4462;
+  color: #f1f5f9;
+  border-radius: 0.625rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  outline: none;
+  width: 100%;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
-::-webkit-scrollbar-track {
-  background: #f1f5f9;
+.input-dark:focus {
+  border-color: #0ea5e9;
+  box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.15);
 }
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
+.input-dark::placeholder { color: #475569; }
 
+/* Select dark */
+select.input-dark { cursor: pointer; }
+
+/* Status dot pulse */
+@keyframes softPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.dot-pulse { animation: softPulse 2s ease-in-out infinite; }

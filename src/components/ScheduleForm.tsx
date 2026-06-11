@@ -9,6 +9,21 @@ interface ScheduleFormProps {
   pendingCount: number;
 }
 
+function getBilingualName(progKey: string, serverName?: string): string {
+  const k = progKey.toLowerCase();
+  if (k.includes("intensiv70") || k.includes("intensive70") || k.includes("heavy")) return "Intensive — הדחה חזקה";
+  if (k.includes("auto4565") || k.includes("auto")) return "Auto — אוטומטי";
+  if (k.includes("eco50") || k.includes("eco")) return "Eco — חסכונית";
+  if (k.includes("prerinse") || k.includes("pre-rinse") || k.includes("pre_rinse")) return "Pre-Rinse — שטיפה מקדימה";
+  if (k.includes("quick65") || k.includes("speed65") || k.includes("quickspeed65")) return "Speed 65° — מהירה 65°";
+  if (k.includes("machinecare") || k.includes("machine-care") || k.includes("machine_care")) return "Machine Care — ניקוי מכונה";
+  if (k.includes("quick45")) return "Quick 45° — מהירה 45°";
+  if (k.includes("glas40") || k.includes("glass40")) return "Glass 40° — זכוכית 40°";
+  if (k.includes("silence") || k.includes("nightwash")) return "Night Wash — לילה שקטה";
+  if (serverName) return serverName;
+  return progKey.replace("Dishcare.Dishwasher.Program.", "").replace(/([A-Z])/g, " $1").trim();
+}
+
 export const ScheduleForm: React.FC<ScheduleFormProps> = ({
   onAddSchedule,
   applianceId,
@@ -16,15 +31,14 @@ export const ScheduleForm: React.FC<ScheduleFormProps> = ({
   pendingCount,
 }) => {
   const [name, setName] = useState("");
-  const [dayOfWeek, setDayOfWeek] = useState<number>(1); // Default to Monday
+  const [dayOfWeek, setDayOfWeek] = useState<number>(5); // שישי
   const [oneTimeDate, setOneTimeDate] = useState("");
-  const [time, setTime] = useState("");
+  const [time, setTime] = useState("22:00");
   const [program, setProgram] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
 
-  // Set initial selected option dynamically once programs list is fetched
   React.useEffect(() => {
     if (programs.length > 0 && !program) {
       setProgram(programs[0].key);
@@ -36,26 +50,14 @@ export const ScheduleForm: React.FC<ScheduleFormProps> = ({
     setErrorMsg("");
     setSuccessMsg("");
 
-    if (!name.trim()) {
-      setErrorMsg("נא להזין שם או תיאור לתזמון.");
-      return;
-    }
-    if (dayOfWeek === -1 && !oneTimeDate) {
-      setErrorMsg("נא לבחור תאריך עבור הפעלה חד-פעמית.");
-      return;
-    }
-    if (!time) {
-      setErrorMsg("נא לבחור שעת הפעלה.");
-      return;
-    }
-    if (!applianceId) {
-      setErrorMsg("שגיאה קריטית: לא נבחר מזהה מכשיר מדיח להפעלה.");
-      return;
-    }
+    if (!name.trim()) { setErrorMsg("נא להזין שם לתזמון."); return; }
+    if (dayOfWeek === -1 && !oneTimeDate) { setErrorMsg("נא לבחור תאריך לחד-פעמי."); return; }
+    if (!time) { setErrorMsg("נא לבחור שעת הפעלה."); return; }
+    if (!applianceId) { setErrorMsg("לא נמצא מזהה מכשיר."); return; }
 
     setLoading(true);
     try {
-      const success = await onAddSchedule({
+      const ok = await onAddSchedule({
         name,
         dayOfWeek,
         oneTimeDate: dayOfWeek === -1 ? oneTimeDate : undefined,
@@ -63,146 +65,149 @@ export const ScheduleForm: React.FC<ScheduleFormProps> = ({
         program,
         applianceId,
       });
-
-      if (success) {
+      if (ok) {
         setSuccessMsg("התזמון נוסף בהצלחה!");
         setName("");
-        setTime("");
+        setTime("22:00");
         setOneTimeDate("");
-        // Reset after 3 seconds
         setTimeout(() => setSuccessMsg(""), 4000);
       }
     } catch (err: any) {
-      setErrorMsg(err.message || "נכשל לרשום תזמון חדש במכונה.");
+      setErrorMsg(err.message || "שגיאה בהוספת תזמון.");
     } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <div id="schedule-form" className="bg-white border border-slate-200 rounded-lg p-6 shadow-sm relative animate-fade-in font-sans">
-      <h3 className="text-md font-bold text-[#005f7a] mb-4 flex items-center gap-2">
-        <PlusCircle className="w-5 h-5 text-[#005f7a]" />
-        הגדרת הפעלה מתוזמנת חדשה
-        <span className="text-xs font-normal text-slate-500 mr-auto">
-          ({pendingCount}/50 ממתינים)
-        </span>
-      </h3>
+  const isAtLimit = pendingCount >= 50;
 
-      {/* Warning if max exceeded */}
-      {pendingCount >= 50 && (
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs text-amber-700 mb-4 leading-relaxed">
-          ⚠️ הגעת למכסה המרבית של 50 תזמונים ממתינים. מחק תזמון קיים כדי לפנות מקום.
+  return (
+    <div className="bg-[#1a2d42] border border-slate-700/70 rounded-2xl p-5 space-y-4 animate-fade-in">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2">
+          <PlusCircle className="w-4 h-4 text-sky-400" />
+          תזמון חדש
+        </h3>
+        <span className="text-xs text-slate-500 font-semibold">
+          {pendingCount}/50
+        </span>
+      </div>
+
+      {isAtLimit && (
+        <div className="bg-amber-950/50 border border-amber-800/60 rounded-xl p-3 text-xs text-amber-300">
+          ⚠️ הגעת למכסה המרבית של 50 תזמונים. מחק תזמון כדי להוסיף חדש.
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4 font-sans">
-        
-        {/* Schedule name */}
+      <form onSubmit={handleSubmit} className="space-y-3.5">
+        {/* Name */}
         <div>
-          <label className="block text-xs text-slate-600 font-bold mb-1.5">שם / תיאור ההפעלה:</label>
+          <label className="block text-[11px] text-slate-400 font-semibold mb-1.5">שם / תיאור</label>
           <input
             type="text"
             value={name}
-            onChange={(e) => setName(e.target.value)}
-            disabled={pendingCount >= 50 || loading}
-            placeholder="למשל: הדחה יומית אחרי ארוחת ערב"
-            className="w-full bg-white border border-slate-300 focus:border-[#005f7a] focus:ring-1 focus:ring-[#005f7a] rounded px-3.5 py-2 text-sm text-slate-800 outline-none transition-all font-semibold"
+            onChange={e => setName(e.target.value)}
+            disabled={isAtLimit || loading}
+            placeholder="למשל: הדחה שישי בלילה"
+            className="input-dark"
           />
         </div>
 
-        {/* Program selection */}
+        {/* Program */}
         <div>
-          <label className="block text-xs text-slate-600 font-bold mb-1.5">בחירת תוכנית הדחה:</label>
+          <label className="block text-[11px] text-slate-400 font-semibold mb-1.5">תוכנית הדחה</label>
           <select
             value={program}
-            onChange={(e) => setProgram(e.target.value)}
-            disabled={pendingCount >= 50 || loading}
-            className="w-full bg-white border border-slate-300 focus:border-[#005f7a] focus:ring-1 focus:ring-[#005f7a] rounded px-3.5 py-2 text-sm text-slate-800 outline-none transition-all font-semibold cursor-pointer"
+            onChange={e => setProgram(e.target.value)}
+            disabled={isAtLimit || loading}
+            className="input-dark"
           >
-            {programs.map((prog) => (
-              <option key={prog.key} value={prog.key}>
-                {prog.name} (משך: כ-{prog.durationMin} דקות)
+            {programs.map(p => (
+              <option key={p.key} value={p.key}>
+                {getBilingualName(p.key, p.name)} · {p.durationMin} דק׳
               </option>
             ))}
           </select>
         </div>
 
-        {/* Day selection */}
-        <div className="grid grid-cols-2 gap-3">
+        {/* Day + Time */}
+        <div className="grid grid-cols-2 gap-2.5">
           <div>
-            <label className="block text-xs text-slate-600 font-bold mb-1.5 flex items-center gap-1">
-              <Calendar className="w-3 h-3 text-slate-500" /> תדירות / יום בשבוע:
+            <label className="block text-[11px] text-slate-400 font-semibold mb-1.5 flex items-center gap-1">
+              <Calendar className="w-3 h-3" /> יום
             </label>
             <select
               value={dayOfWeek}
-              onChange={(e) => setDayOfWeek(Number(e.target.value))}
-              disabled={pendingCount >= 50 || loading}
-              className="w-full bg-white border border-slate-300 focus:border-[#005f7a] focus:ring-1 focus:ring-[#005f7a] rounded px-3.5 py-2 text-sm text-slate-800 outline-none transition-all font-semibold cursor-pointer"
+              onChange={e => setDayOfWeek(Number(e.target.value))}
+              disabled={isAtLimit || loading}
+              className="input-dark"
             >
-              <option value={1}>כל יום שני</option>
-              <option value={2}>כל יום שלישי</option>
-              <option value={3}>כל יום רביעי</option>
-              <option value={4}>כל יום חמישי</option>
-              <option value={5}>כל יום שישי</option>
-              <option value={6}>כל יום שבת</option>
-              <option value={0}>כל יום ראשון</option>
-              <option value={-1}>חד-פעמי (תאריך ספציפי)</option>
+              <option value={1}>כל שני</option>
+              <option value={2}>כל שלישי</option>
+              <option value={3}>כל רביעי</option>
+              <option value={4}>כל חמישי</option>
+              <option value={5}>כל שישי</option>
+              <option value={6}>כל שבת</option>
+              <option value={0}>כל ראשון</option>
+              <option value={-1}>חד-פעמי</option>
             </select>
           </div>
 
           <div>
-            <label className="block text-xs text-slate-600 font-bold mb-1.5 flex items-center gap-1">
-              <Clock className="w-3 h-3 text-slate-500" /> שעת הפעלה:
+            <label className="block text-[11px] text-slate-400 font-semibold mb-1.5 flex items-center gap-1">
+              <Clock className="w-3 h-3" /> שעה
             </label>
             <input
               type="time"
               value={time}
-              onChange={(e) => setTime(e.target.value)}
-              disabled={pendingCount >= 50 || loading}
-              className="w-full bg-white border border-slate-300 focus:border-[#005f7a] focus:ring-1 focus:ring-[#005f7a] rounded px-3.5 py-2 text-sm text-slate-800 outline-none transition-all font-mono font-bold"
+              onChange={e => setTime(e.target.value)}
+              disabled={isAtLimit || loading}
+              className="input-dark font-mono"
             />
           </div>
         </div>
 
-        {/* Specific Date Picker if One-Time is chosen */}
+        {/* Specific date */}
         {dayOfWeek === -1 && (
-          <div className="animate-fade-in font-sans">
-            <label className="block text-xs text-slate-600 font-bold mb-1.5">בחר תאריך יעד מדויק:</label>
+          <div className="animate-fade-in">
+            <label className="block text-[11px] text-slate-400 font-semibold mb-1.5">תאריך</label>
             <input
               type="date"
               value={oneTimeDate}
-              onChange={(e) => setOneTimeDate(e.target.value)}
-              disabled={pendingCount >= 50 || loading}
+              onChange={e => setOneTimeDate(e.target.value)}
+              disabled={isAtLimit || loading}
               min={new Date().toISOString().split("T")[0]}
-              className="w-full bg-white border border-slate-300 focus:border-[#005f7a] focus:ring-1 focus:ring-[#005f7a] rounded px-3.5 py-2 text-sm text-slate-800 outline-none transition-all font-semibold cursor-pointer"
+              className="input-dark cursor-pointer"
             />
           </div>
         )}
 
+        {/* Messages */}
         {errorMsg && (
-          <p className="text-xs text-rose-700 font-bold bg-rose-50 border border-rose-200 p-2.5 rounded">
+          <div className="bg-rose-950/60 border border-rose-800/60 rounded-xl px-3 py-2.5 text-xs text-rose-300 font-semibold">
             {errorMsg}
-          </p>
+          </div>
         )}
-
         {successMsg && (
-          <p className="text-xs text-emerald-800 font-bold bg-emerald-50 border border-emerald-200 p-2.5 rounded flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+          <div className="bg-emerald-950/60 border border-emerald-800/60 rounded-xl px-3 py-2.5 text-xs text-emerald-300 font-semibold flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5" />
             {successMsg}
-          </p>
+          </div>
         )}
 
+        {/* Submit */}
         <button
           type="submit"
-          disabled={pendingCount >= 50 || loading}
-          className={`w-full py-2.5 rounded text-sm font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm ${
-            pendingCount >= 50
-              ? "bg-slate-200 text-slate-400 cursor-not-allowed"
-              : "bg-[#005f7a] hover:bg-[#00465a] text-white"
+          disabled={isAtLimit || loading}
+          className={`w-full py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 cursor-pointer min-h-[48px] ${
+            isAtLimit
+              ? "bg-slate-700 text-slate-500 cursor-not-allowed"
+              : "bg-sky-600 hover:bg-sky-500 active:bg-sky-700 text-white shadow-lg shadow-sky-900/30"
           }`}
         >
-          {loading ? "רושם תזמון..." : "הוסף תזמון לשרת"}
+          <PlusCircle className="w-4 h-4" />
+          {loading ? "מוסיף..." : "הוסף תזמון"}
         </button>
       </form>
     </div>

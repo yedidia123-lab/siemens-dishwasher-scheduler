@@ -7,7 +7,7 @@ import { LogsPanel } from "./components/LogsPanel";
 import { ConfigModal } from "./components/ConfigModal";
 import { ToastContainer, ToastData, makeToast } from "./components/Toast";
 import { ConfirmDialog } from "./components/ConfirmDialog";
-import { ShieldCheck, CalendarRange, Clock, Settings, Sparkles, HelpCircle, Activity, Waves } from "lucide-react";
+import { ShieldCheck, CalendarRange, Clock, Settings, Sparkles, HelpCircle, Activity, Waves, Loader2 } from "lucide-react";
 
 export default function App() {
   const [config, setConfig] = useState<AuthConfig | null>(null);
@@ -422,122 +422,103 @@ export default function App() {
   const pendingSchedulesCount = schedules.filter((s) => s.status === "pending").length;
   const nextSchedule = getNextSchedule();
 
+  const tabs = [
+    { id: "scheduler" as const, icon: <CalendarRange className="w-5 h-5" />, label: "תזמונים" },
+    { id: "config" as const, icon: <Settings className="w-5 h-5" />, label: "הגדרות" },
+    { id: "logs" as const, icon: <Activity className="w-5 h-5" />, label: "יומן" },
+  ];
+  const hasLogError = logs.length > 0 && logs[0].level === "error";
+
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-900 font-sans" style={{ direction: "rtl" }}>
-
-      {/* Toast layer */}
+    <div className="min-h-screen bg-[#0f172a] text-slate-100 font-sans" style={{ direction: "rtl" }}>
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
-
-      {/* Confirm dialog */}
       {confirm && (
-        <ConfirmDialog
-          message={confirm.message}
-          onConfirm={confirm.onConfirm}
-          onCancel={cancelConfirm}
-        />
+        <ConfirmDialog message={confirm.message} onConfirm={confirm.onConfirm} onCancel={cancelConfirm} />
       )}
 
-      {/* Header */}
-      <header className="bg-[#005f7a] text-white shadow-md sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-white/15 rounded-xl">
-              <Waves className="w-5 h-5 text-sky-200" />
+      {/* ── Header ── */}
+      <header className="sticky top-0 z-40 bg-[#0d1a2b]/95 backdrop-blur-md border-b border-slate-700/60">
+        <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 bg-sky-600 rounded-xl flex items-center justify-center shrink-0">
+              <Waves className="w-4 h-4 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-extrabold tracking-tight text-white flex items-center gap-2">
-                ShabbatDish
-                <span className="text-[11px] opacity-70 font-normal hidden sm:inline">| תזמון מדיח כלים</span>
-              </h1>
-              <p className="text-[11px] text-sky-100/80 mt-0.5">תזמון חכם + בדיקות בטיחות אוטומטיות</p>
+              <p className="text-sm font-bold text-slate-100 leading-none">ShabbatDish</p>
+              <p className="text-[10px] text-slate-500 leading-none mt-0.5">
+                {config?.useSimulator ? "סימולטור" : "Home Connect API"}
+              </p>
             </div>
           </div>
 
-          <nav className="flex items-center gap-1 bg-[#004f66] p-1 rounded-lg border border-white/10">
-            {(["scheduler", "config", "logs"] as const).map((tab) => {
-              const labels: Record<string, { icon: React.ReactNode; label: string }> = {
-                scheduler: { icon: <CalendarRange className="w-3.5 h-3.5" />, label: "לוח תזמונים" },
-                config: { icon: <Settings className="w-3.5 h-3.5" />, label: "חיבור והגדרות" },
-                logs: { icon: <Activity className="w-3.5 h-3.5" />, label: "יומן בטיחות" },
-              };
-              const { icon, label } = labels[tab];
-              return (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`px-3.5 py-1.5 text-xs font-bold rounded transition-all flex items-center gap-1.5 cursor-pointer relative ${
-                    activeTab === tab ? "bg-white text-[#005f7a] shadow" : "text-sky-100 hover:text-white"
-                  }`}
-                >
-                  {icon}
-                  {label}
-                  {tab === "logs" && logs.length > 0 && logs[0].level === "error" && (
-                    <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-rose-500 rounded-full" />
-                  )}
-                </button>
-              );
-            })}
+          {/* Desktop tabs */}
+          <nav className="hidden md:flex items-center gap-1 bg-slate-800/60 border border-slate-700/60 rounded-xl p-1">
+            {tabs.map(t => (
+              <button key={t.id} onClick={() => setActiveTab(t.id)}
+                className={`relative px-4 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer flex items-center gap-1.5 min-h-[34px] ${
+                  activeTab === t.id ? "bg-sky-600 text-white shadow-sm" : "text-slate-400 hover:text-slate-200 hover:bg-slate-700/60"
+                }`}>
+                {t.id === "logs" && hasLogError && (
+                  <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-rose-500 rounded-full" />
+                )}
+                {React.cloneElement(t.icon as React.ReactElement, { className: "w-3.5 h-3.5" })}
+                {t.label}
+              </button>
+            ))}
           </nav>
-        </div>
-      </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-
-        {/* Status bar */}
-        <div className="bg-white border border-slate-200 rounded-lg p-3.5 mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs shadow-sm">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-            <span className="text-slate-700 font-semibold">
-              מקור: {config?.useSimulator ? "סימולטור פנימי" : "Home Connect API רשמי"}
-            </span>
-          </div>
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-slate-600">
-            <span>תזמונים: <strong className="text-[#005f7a]">{pendingSchedulesCount}/50</strong></span>
-            {nextSchedule && (
-              <span className="flex items-center gap-1">
-                <Clock className="w-3 h-3 text-[#005f7a]" />
-                הבא: <strong className="text-slate-800 mr-1">{nextSchedule}</strong>
-              </span>
+            <span className={`w-2 h-2 rounded-full shrink-0 ${config?.hasToken || config?.useSimulator ? "bg-emerald-400" : "bg-amber-400"}`} />
+            {!config?.hasToken && !config?.useSimulator && (
+              <button onClick={handleConnectOAuth}
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-bold transition-colors cursor-pointer">
+                התחבר
+              </button>
             )}
           </div>
         </div>
+      </header>
 
+      <main className="max-w-5xl mx-auto px-4 pt-5 pb-28 md:pb-8">
+        {/* Status strip */}
+        <div className="flex items-center justify-between bg-slate-800/40 border border-slate-700/50 rounded-2xl px-4 py-2.5 mb-5 text-xs">
+          <div className="flex items-center gap-3 text-slate-400">
+            <span>תזמונים: <strong className="text-sky-400">{pendingSchedulesCount}/50</strong></span>
+            {nextSchedule && (
+              <span className="hidden sm:flex items-center gap-1">
+                <Clock className="w-3 h-3 text-sky-500" />
+                <strong className="text-slate-300">{nextSchedule}</strong>
+              </span>
+            )}
+          </div>
+          {config?.hasToken && !config?.useSimulator ? (
+            <span className="text-emerald-400 font-semibold flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 dot-pulse" />API חי
+            </span>
+          ) : (
+            <span className="text-amber-400 font-semibold">סימולטור</span>
+          )}
+        </div>
+
+        {/* ── Scheduler tab ── */}
         {activeTab === "scheduler" && (
-          <div className="space-y-6 animate-fade-in">
-            {/* Hero banner */}
-            <div className="bg-gradient-to-r from-[#005f7a] to-[#004255] text-white rounded-lg p-5 sm:p-7 shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
-              <div className="space-y-2 max-w-2xl">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="px-2.5 py-0.5 bg-sky-400/25 border border-sky-300/30 rounded-full text-sky-200 text-xs font-bold flex items-center gap-1">
-                    <Sparkles className="w-3 h-3" />
-                    מערכת תזמון חכמה
-                  </span>
-                  {config?.hasToken && !config?.useSimulator ? (
-                    <span className="px-2.5 py-0.5 bg-emerald-400/20 border border-emerald-300/30 text-emerald-200 rounded-full text-xs font-bold">חיבור API פעיל ✓</span>
-                  ) : (
-                    <span className="px-2.5 py-0.5 bg-amber-400/20 border border-amber-300/30 text-amber-200 rounded-full text-xs font-bold">מצב סימולטור</span>
-                  )}
+          <div className="space-y-4 animate-fade-in">
+            {!config?.hasToken && !config?.useSimulator && (
+              <div className="bg-sky-950/60 border border-sky-800/60 rounded-2xl p-4 flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-bold text-sky-200">לא מחובר ל-Home Connect</p>
+                  <p className="text-xs text-sky-400/70 mt-0.5">חבר חשבון כדי לשלוט במדיח האמיתי</p>
                 </div>
-                <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight">ShabbatDish — תזמון מדיח כלים חכם</h2>
-                <p className="text-xs sm:text-sm text-sky-100/90 leading-relaxed">
-                  תכנן מחזורי הדחה חסכוניים בשעות תעריף חשמל מוזל. מנוע הבטיחות בודק חיישני דלת, WiFi ו-Remote Start לפני כל הפעלה.
-                </p>
-              </div>
-              <div className="flex flex-row md:flex-col lg:flex-row items-center gap-2.5 w-full md:w-auto shrink-0">
-                {!config?.hasToken && !config?.useSimulator && (
-                  <button onClick={handleConnectOAuth} className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md text-xs font-bold transition-all shadow-sm cursor-pointer border-0">
-                    🔐 התחבר ל-Siemens
-                  </button>
-                )}
-                <button onClick={() => setActiveTab("config")} className="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-md text-xs font-bold transition-all cursor-pointer">
-                  ⚙️ הגדרות
+                <button onClick={handleConnectOAuth}
+                  className="px-4 py-2.5 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-sm font-bold transition-colors cursor-pointer shrink-0 min-h-[44px]">
+                  התחבר
                 </button>
               </div>
-            </div>
+            )}
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
               {/* Sidebar */}
-              <div className="lg:col-span-1 space-y-6">
+              <div className="lg:col-span-2 space-y-4">
                 <StatusWidget
                   appliance={appliance}
                   useSimulator={config?.useSimulator || false}
@@ -554,8 +535,8 @@ export default function App() {
                 />
               </div>
 
-              {/* Main content */}
-              <div className="lg:col-span-2 space-y-6">
+              {/* Main panel */}
+              <div className="lg:col-span-3 space-y-4">
                 <ScheduleList
                   schedules={schedules}
                   onDelete={handleDeleteSchedule}
@@ -565,129 +546,117 @@ export default function App() {
                   checkingSchedules={checkingSchedules}
                 />
 
-                <LogsPanel logs={logs.slice(0, 5)} onClear={handleClearLogs} />
-
-                {/* Developer portal */}
-                <div className="bg-white border border-slate-200 rounded-lg p-5 shadow-sm space-y-4">
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                    <div className="flex items-center gap-2">
-                      <div className="p-1.5 bg-slate-100 rounded">
-                        <Settings className="w-4 h-4 text-[#005f7a]" />
-                      </div>
-                      <div>
-                        <h4 className="text-sm font-bold text-slate-800">אזור מפתחים (Developer Portal)</h4>
-                        <p className="text-[10px] text-slate-500 font-semibold">מעקב אחר מנוע ה-Scheduler בזמן אמת</p>
-                      </div>
+                {/* Recent logs preview */}
+                {logs.length > 0 && (
+                  <div className="bg-[#1a2d42] border border-slate-700/70 rounded-2xl p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wide flex items-center gap-1.5">
+                        <Activity className="w-3.5 h-3.5" />אירועים אחרונים
+                      </h4>
+                      <button onClick={() => setActiveTab("logs")}
+                        className="text-xs text-sky-400 hover:text-sky-300 cursor-pointer font-semibold">הצג הכל</button>
                     </div>
-                    <button
-                      onClick={() => setDeveloperMode(!developerMode)}
-                      className={`px-3 py-1 text-[11px] font-bold rounded cursor-pointer transition-all ${developerMode ? "bg-slate-800 text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"}`}
-                    >
-                      {developerMode ? "הסתר ✕" : "הצג Debug ⚙️"}
-                    </button>
+                    <div className="space-y-1.5">
+                      {logs.slice(0, 3).map((log, i) => (
+                        <div key={i} className={`flex items-start gap-2 text-xs px-2.5 py-1.5 rounded-xl ${
+                          log.level === "error" ? "bg-rose-950/50 text-rose-300" :
+                          log.level === "warn"  ? "bg-amber-950/50 text-amber-300" :
+                          "bg-slate-800/50 text-slate-400"
+                        }`}>
+                          <span className="text-[10px] text-slate-600 shrink-0 font-mono mt-0.5">
+                            {new Date(log.timestamp).toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" })}
+                          </span>
+                          <span className="leading-snug">{log.message}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
+                )}
 
-                  {developerMode && (
-                    <div className="space-y-4 text-xs">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 p-3 rounded border border-slate-200/50">
-                        <div>
-                          <span className="block text-[10px] text-slate-500 font-bold mb-0.5">זמן שרת (UTC):</span>
-                          <code className="text-xs font-mono font-bold text-slate-800 bg-white px-1.5 py-0.5 rounded border border-slate-200">
-                            {debugData?.serverTimeUtc || "—"}
-                          </code>
-                        </div>
-                        <div>
-                          <span className="block text-[10px] text-slate-500 font-bold mb-0.5">שעה בישראל:</span>
-                          <code className="text-xs font-mono font-bold text-emerald-800 bg-white px-1.5 py-0.5 rounded border border-emerald-100">
-                            {debugData?.israelTime?.dateStr} {debugData?.israelTime?.timeStr} ({debugData?.israelTime?.success ? "✓" : "fallback"})
-                          </code>
-                        </div>
+                {/* Safety gates */}
+                <div className="bg-[#1a2d42] border border-slate-700/70 rounded-2xl p-4">
+                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wide flex items-center gap-1.5 mb-3">
+                    <ShieldCheck className="w-3.5 h-3.5 text-sky-500" />4 שערי בטיחות לפני כל הפעלה
+                  </h4>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    {[["דלת סגורה","חיישן דלת"],["Remote Start","אישור מהמכשיר"],["אין תוכנית פעילה","ללא התנגשות"],["תוכנית נתמכת","API validation"]].map(([h,d]) => (
+                      <div key={h} className="bg-slate-900/40 rounded-xl p-2.5 border border-slate-700/40">
+                        <p className="font-semibold text-emerald-400 text-[11px]">{h}</p>
+                        <p className="text-slate-600 text-[10px] mt-0.5">{d}</p>
                       </div>
+                    ))}
+                  </div>
+                </div>
 
-                      <div className="space-y-2">
-                        <h5 className="font-bold text-slate-700 text-xs">ניתוח תזמונים:</h5>
-                        {schedules.length === 0 ? (
-                          <p className="text-[11px] text-slate-500 italic">אין תזמונים פעילים.</p>
-                        ) : (
-                          <div className="space-y-1.5">
-                            {schedules.map((s) => {
-                              const days = ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"];
-                              const statusText = s.status === "pending"
-                                ? s.dayOfWeek === -1
-                                  ? `ממתין ל-${s.oneTimeDate} ${s.time}`
-                                  : `ממתין ליום ${days[s.dayOfWeek]} ב-${s.time}`
-                                : s.status === "triggered" ? "הופעל בהצלחה"
-                                : s.status === "failed" ? `נכשל: ${s.errorLog}`
-                                : s.status === "missed" ? "עבר ללא הפעלה"
-                                : s.status;
-                              return (
-                                <div key={s.id} className="p-2 border rounded bg-white flex justify-between items-center text-[11px]">
-                                  <span className="font-bold text-[#005f7a]">{s.name}</span>
-                                  <span className="text-slate-500">{statusText}</span>
-                                </div>
-                              );
-                            })}
+                {/* Developer area — collapsible */}
+                <details className="group bg-slate-800/30 border border-slate-700/50 rounded-2xl overflow-hidden">
+                  <summary className="flex items-center justify-between px-4 py-3 cursor-pointer select-none text-xs font-semibold text-slate-500 hover:text-slate-400 transition-colors list-none">
+                    <span className="flex items-center gap-1.5"><Settings className="w-3.5 h-3.5" />אזור מפתחים</span>
+                    <span className="group-open:rotate-180 transition-transform text-slate-600">▾</span>
+                  </summary>
+                  <div className="px-4 pb-4 pt-1 space-y-3 border-t border-slate-700/50">
+                    <div className="flex gap-2 pt-2">
+                      <button
+                        onClick={() => { setDeveloperMode(!developerMode); if (!developerMode) fetchDebugStatus(); }}
+                        className={`px-3 py-1.5 text-xs rounded-xl font-semibold cursor-pointer transition-all border ${
+                          developerMode ? "bg-slate-700 text-slate-200 border-slate-600" : "bg-transparent text-slate-400 border-slate-700 hover:bg-slate-700/60"
+                        }`}>
+                        {developerMode ? "הסתר Debug" : "הצג Debug"}
+                      </button>
+                    </div>
+                    {developerMode && (
+                      <div className="space-y-3 text-xs">
+                        <div className="grid grid-cols-2 gap-2 bg-slate-900/50 p-3 rounded-xl">
+                          <div>
+                            <p className="text-[10px] text-slate-600 mb-1">שרת UTC</p>
+                            <code className="text-slate-300 font-mono text-[11px]">{debugData?.serverTimeUtc || "—"}</code>
                           </div>
-                        )}
-                      </div>
-
-                      <div className="space-y-2 border-t border-slate-200 pt-3">
-                        <h5 className="font-bold text-slate-700 text-xs flex items-center gap-1.5">
-                          <Sparkles className="w-3.5 h-3.5 text-[#005f7a]" />
-                          תוכניות מה-API:
-                        </h5>
-                        {programs.length === 0 ? (
-                          <p className="text-[11px] text-slate-500 italic">לא התקבלו תוכניות.</p>
-                        ) : (
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-60 overflow-y-auto">
-                            {programs.map((p) => (
-                              <div key={p.key} className="p-2 border rounded bg-white shadow-sm">
-                                <div className="flex justify-between items-start gap-2 mb-1">
-                                  <span className="font-bold text-slate-800 text-[11px]">{p.name}</span>
-                                  <span className="font-mono text-[9.5px] bg-[#e0f2fe] text-[#005f7a] px-1.5 py-0.5 rounded border border-sky-100 shrink-0">
-                                    {p.key.split(".").pop()}
-                                  </span>
-                                </div>
-                                <p className="text-[9.5px] text-slate-400 font-mono select-all">{p.key}</p>
-                                {p.raw && (
-                                  <details className="border-t border-slate-100 pt-1 mt-1">
-                                    <summary className="text-[9px] text-[#005f7a] cursor-pointer hover:underline">▸ Raw JSON</summary>
-                                    <pre className="mt-1 text-[8.5px] text-slate-600 bg-slate-50 p-1 rounded overflow-x-auto max-h-32">
-                                      {JSON.stringify(p.raw, null, 2)}
-                                    </pre>
-                                  </details>
-                                )}
+                          <div>
+                            <p className="text-[10px] text-slate-600 mb-1">ישראל</p>
+                            <code className="text-emerald-400 font-mono text-[11px]">
+                              {debugData?.israelTime?.timeStr || "—"} {debugData?.israelTime?.success ? "✓" : ""}
+                            </code>
+                          </div>
+                        </div>
+                        <div className="space-y-1">
+                          {schedules.map(s => {
+                            const days = ["ראשון","שני","שלישי","רביעי","חמישי","שישי","שבת"];
+                            const t = s.status === "pending"
+                              ? s.dayOfWeek === -1 ? `ממתין ל-${s.oneTimeDate} ${s.time}` : `ממתין ליום ${days[s.dayOfWeek]} ${s.time}`
+                              : s.status;
+                            return (
+                              <div key={s.id} className="flex justify-between items-center px-2 py-1.5 bg-slate-900/40 rounded-lg text-[11px]">
+                                <span className="text-sky-400 font-semibold">{s.name}</span>
+                                <span className="text-slate-500">{t}</span>
                               </div>
-                            ))}
+                            );
+                          })}
+                        </div>
+                        {programs.length > 0 && (
+                          <div>
+                            <p className="text-[10px] text-slate-600 mb-1.5">תוכניות API</p>
+                            <div className="grid grid-cols-2 gap-1.5 max-h-40 overflow-y-auto">
+                              {programs.map(p => (
+                                <div key={p.key} className="bg-slate-900/40 rounded-lg p-2">
+                                  <p className="text-[11px] text-slate-300 font-semibold">{p.name}</p>
+                                  <p className="text-[9px] text-slate-600 font-mono mt-0.5">{p.key.split(".").pop()}</p>
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         )}
                       </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Safety info */}
-                <div className="bg-white border border-slate-200 p-5 rounded-lg flex items-start gap-4 shadow-sm">
-                  <div className="p-3 bg-[#e0f2fe] text-[#005f7a] rounded-lg shrink-0">
-                    <HelpCircle className="w-5 h-5" />
+                    )}
                   </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-[#005f7a] mb-2">מנגנון בטיחות — 4 שערי בקרה</h4>
-                    <ul className="list-decimal text-xs text-slate-600 mr-4 space-y-1.5">
-                      <li><strong>דלת סגורה:</strong> אם הדלת פתוחה — ההדחה נחסמת מיידית.</li>
-                      <li><strong>Remote Start מאופשר:</strong> נדרש אישור פיזי מהמכשיר.</li>
-                      <li><strong>אין תוכנית פעילה:</strong> לא יתנגש עם הדחה שכבר רצה.</li>
-                      <li><strong>תוכנית נתמכת:</strong> Program Key נבדק מול ה-API לפני הפעלה.</li>
-                    </ul>
-                  </div>
-                </div>
+                </details>
               </div>
             </div>
           </div>
         )}
 
+        {/* ── Config tab ── */}
         {activeTab === "config" && (
-          <div className="max-w-3xl mx-auto">
+          <div className="max-w-2xl mx-auto animate-fade-in">
             <ConfigModal
               config={config}
               onUpdate={handleUpdateConfig}
@@ -702,16 +671,37 @@ export default function App() {
           </div>
         )}
 
+        {/* ── Logs tab ── */}
         {activeTab === "logs" && (
-          <div className="max-w-3xl mx-auto animate-fade-in">
+          <div className="max-w-2xl mx-auto animate-fade-in">
             <LogsPanel logs={logs} onClear={handleClearLogs} />
           </div>
         )}
       </main>
 
-      <footer className="border-t border-slate-200 bg-slate-50 mt-12 py-5 text-center text-xs text-slate-400">
-        <p className="font-semibold text-slate-500 mb-0.5">ShabbatDish — Home Connect Scheduler</p>
-        <p className="text-[11px]">Client Secret מאוחסן בשרת בלבד · תקשורת מוצפנת מול שרתי BSH Group</p>
+      {/* ── Mobile bottom nav ── */}
+      <nav className="fixed bottom-0 inset-x-0 md:hidden z-40 bg-[#0d1a2b]/95 backdrop-blur-md border-t border-slate-700/60 pb-safe">
+        <div className="flex">
+          {tabs.map(t => (
+            <button key={t.id} onClick={() => setActiveTab(t.id)}
+              className={`flex-1 relative flex flex-col items-center pt-2.5 pb-3 gap-1 text-[11px] font-semibold transition-colors cursor-pointer min-h-[56px] ${
+                activeTab === t.id ? "text-sky-400" : "text-slate-600 hover:text-slate-400"
+              }`}>
+              {t.id === "logs" && hasLogError && (
+                <span className="absolute top-2 right-1/2 -translate-x-1 w-1.5 h-1.5 bg-rose-500 rounded-full" />
+              )}
+              {t.icon}
+              {t.label}
+              {activeTab === t.id && (
+                <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-sky-500 rounded-full" />
+              )}
+            </button>
+          ))}
+        </div>
+      </nav>
+
+      <footer className="hidden md:block border-t border-slate-800 py-4 text-center text-[11px] text-slate-700">
+        ShabbatDish · Client Secret בשרת בלבד · תקשורת מוצפנת עם BSH Group
       </footer>
     </div>
   );
