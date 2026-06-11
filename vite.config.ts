@@ -13,9 +13,9 @@ export default defineConfig(() => {
         registerType: 'autoUpdate',
         includeAssets: ['icons/icon.svg', 'icons/icon-maskable.svg', 'apple-touch-icon.png'],
         manifest: {
-          name: 'תזמון מדיח שבת',
-          short_name: 'מדיח שבת',
-          description: 'תזמון חכם להפעלת מדיח כלים Siemens דרך Home Connect API',
+          name: 'ShabbatDish',
+          short_name: 'ShabbatDish',
+          description: 'ShabbatDish — תזמון חכם להפעלת מדיח כלים Siemens דרך Home Connect API',
           start_url: '/',
           scope: '/',
           display: 'standalone',

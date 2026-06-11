@@ -7,7 +7,7 @@ import { LogsPanel } from "./components/LogsPanel";
 import { ConfigModal } from "./components/ConfigModal";
 import { ToastContainer, ToastData, makeToast } from "./components/Toast";
 import { ConfirmDialog } from "./components/ConfirmDialog";
-import { ShieldCheck, CalendarRange, Clock, Settings, Sparkles, HelpCircle, Activity } from "lucide-react";
+import { ShieldCheck, CalendarRange, Clock, Settings, Sparkles, HelpCircle, Activity, Waves } from "lucide-react";
 
 export default function App() {
   const [config, setConfig] = useState<AuthConfig | null>(null);
@@ -16,6 +16,7 @@ export default function App() {
   const [programs, setPrograms] = useState<Array<{ key: string; name: string; durationMin: number }>>([]);
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [loadingAppliance, setLoadingAppliance] = useState(false);
+  const initialApplianceLoad = React.useRef(true);
   const [activeTab, setActiveTab] = useState<"scheduler" | "config" | "logs">("scheduler");
 
   // Toast notifications
@@ -57,20 +58,23 @@ export default function App() {
     }
   };
 
-  const fetchAppliance = async () => {
-    setLoadingAppliance(true);
+  const fetchAppliance = async (showLoading = false) => {
+    if (showLoading) setLoadingAppliance(true);
     try {
       const res = await fetch("/api/appliances");
       if (res.ok) {
         const data = await res.json();
         const activeApp = data[0] || null;
         setAppliance(activeApp);
-        fetchPrograms(activeApp?.haId);
+        if (initialApplianceLoad.current) {
+          fetchPrograms(activeApp?.haId);
+          initialApplianceLoad.current = false;
+        }
       }
     } catch (err) {
       console.error("Failed to fetch appliances:", err);
     } finally {
-      setLoadingAppliance(false);
+      if (showLoading) setLoadingAppliance(false);
     }
   };
 
@@ -107,10 +111,10 @@ export default function App() {
     fetchSchedules();
     fetchPrograms();
     fetchLogs();
-    fetchAppliance();
+    fetchAppliance(true);
 
     const interval = setInterval(() => {
-      fetchAppliance();
+      fetchAppliance(false);
       fetchSchedules();
       fetchLogs();
     }, 45000);
@@ -118,7 +122,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (config) fetchAppliance();
+    if (config) fetchAppliance(true);
   }, [config?.useSimulator, config?.hasToken]);
 
   // OAuth popup postMessage listener
@@ -305,7 +309,28 @@ export default function App() {
   };
 
   const handleRefreshAppliances = async () => {
-    await fetchAppliance();
+    await fetchAppliance(true);
+  };
+
+  const handleStopProgram = async () => {
+    const haId = appliance?.haId;
+    if (!haId) return;
+    const ok = await askConfirm("האם לעצור את הפעולה הנוכחית של המדיח? הפעולה תישלח ל-Home Connect API.");
+    if (!ok) return;
+    try {
+      const res = await fetch(`/api/appliances/${encodeURIComponent(haId)}/stop`, { method: "POST" });
+      const data = await res.json();
+      if (res.ok) {
+        addToast("success", data.message || "נשלחה בקשת עצירה");
+        await fetchAppliance(false);
+        await fetchLogs();
+      } else {
+        const debugInfo = data.debug ? ` (${data.debug.slice(0, 80)})` : "";
+        addToast("error", `העצירה נכשלה: HTTP ${data.httpStatus || res.status}${debugInfo}`);
+      }
+    } catch (err: any) {
+      addToast("error", "שגיאת תקשורת בעת עצירה: " + err.message);
+    }
   };
 
   const handleConnectOAuth = async () => {
@@ -416,14 +441,15 @@ export default function App() {
       <header className="bg-[#005f7a] text-white shadow-md sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-white/10 rounded-lg">
-              <ShieldCheck className="w-5 h-5 text-sky-200" />
+            <div className="p-2 bg-white/15 rounded-xl">
+              <Waves className="w-5 h-5 text-sky-200" />
             </div>
             <div>
-              <h1 className="text-xl font-extrabold tracking-wider text-white flex items-center gap-1.5 font-mono">
-                SIEMENS <span className="text-xs opacity-80 font-normal mr-2">| Home Connect Scheduler</span>
+              <h1 className="text-xl font-extrabold tracking-tight text-white flex items-center gap-2">
+                ShabbatDish
+                <span className="text-[11px] opacity-70 font-normal hidden sm:inline">| תזמון מדיח כלים</span>
               </h1>
-              <p className="text-[11px] text-sky-100 opacity-90 mt-0.5">מערכת תזמון הפעלות וניטור חיישני בטיחות למדיחי כלים</p>
+              <p className="text-[11px] text-sky-100/80 mt-0.5">תזמון חכם + בדיקות בטיחות אוטומטיות</p>
             </div>
           </div>
 
@@ -466,7 +492,7 @@ export default function App() {
             </span>
           </div>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-slate-600">
-            <span>תזמונים: <strong className="text-[#005f7a]">{pendingSchedulesCount}/7</strong></span>
+            <span>תזמונים: <strong className="text-[#005f7a]">{pendingSchedulesCount}/50</strong></span>
             {nextSchedule && (
               <span className="flex items-center gap-1">
                 <Clock className="w-3 h-3 text-[#005f7a]" />
@@ -492,7 +518,7 @@ export default function App() {
                     <span className="px-2.5 py-0.5 bg-amber-400/20 border border-amber-300/30 text-amber-200 rounded-full text-xs font-bold">מצב סימולטור</span>
                   )}
                 </div>
-                <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight">ניהול ותזמון הפעלות מדיח Siemens</h2>
+                <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight">ShabbatDish — תזמון מדיח כלים חכם</h2>
                 <p className="text-xs sm:text-sm text-sky-100/90 leading-relaxed">
                   תכנן מחזורי הדחה חסכוניים בשעות תעריף חשמל מוזל. מנוע הבטיחות בודק חיישני דלת, WiFi ו-Remote Start לפני כל הפעלה.
                 </p>
@@ -517,7 +543,8 @@ export default function App() {
                   useSimulator={config?.useSimulator || false}
                   onSimulatorAction={handleSimulatorAction}
                   loading={loadingAppliance}
-                  onRefresh={fetchAppliance}
+                  onRefresh={() => fetchAppliance(true)}
+                  onStop={handleStopProgram}
                 />
                 <ScheduleForm
                   onAddSchedule={handleAddSchedule}
@@ -682,11 +709,9 @@ export default function App() {
         )}
       </main>
 
-      <footer className="border-t border-slate-200 bg-slate-200/50 mt-12 py-6 text-center text-xs text-slate-500">
-        <p className="mb-1 font-semibold text-slate-600">מאובטח על פי תקנות Siemens ו-Home Connect SDK</p>
-        <p className="max-w-md mx-auto text-[11px] text-slate-400 leading-relaxed">
-          Client Secret נשמר בשרת בלבד. תקשורת מוצפנת מול שרתי BSH Group.
-        </p>
+      <footer className="border-t border-slate-200 bg-slate-50 mt-12 py-5 text-center text-xs text-slate-400">
+        <p className="font-semibold text-slate-500 mb-0.5">ShabbatDish — Home Connect Scheduler</p>
+        <p className="text-[11px]">Client Secret מאוחסן בשרת בלבד · תקשורת מוצפנת מול שרתי BSH Group</p>
       </footer>
     </div>
   );

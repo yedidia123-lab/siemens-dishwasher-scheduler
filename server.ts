@@ -747,7 +747,7 @@ app.get("/api/schedules", (req, res) => {
   res.json(schedules);
 });
 
-// Edit/Add scheduled items (Max 7 schedules as requested)
+// Edit/Add scheduled items (Max 50 schedules)
 app.post("/api/schedules", (req, res) => {
   const { id, name, dayOfWeek, oneTimeDate, time, program, applianceId } = req.body;
 
@@ -757,8 +757,8 @@ app.post("/api/schedules", (req, res) => {
 
   // Enforce Max 7 active schedules limits
   const activeCount = schedules.filter((s: any) => s.status === "pending").length;
-  if (!id && activeCount >= 7) {
-    return res.status(400).json({ error: "ניתן להגדיר עד 7 הפעלות עתידיות ממתינות בו-זמנית כמגבלת הגנה." });
+  if (!id && activeCount >= 50) {
+    return res.status(400).json({ error: "הגעת למכסת התזמונים המרבית (50). מחק תזמון קיים כדי להוסיף חדש." });
   }
 
   if (id) {
@@ -796,7 +796,7 @@ app.post("/api/schedules", (req, res) => {
       applianceId,
     };
     schedules.push(newSchedule);
-    addLog("info", `התזמון החדש '${name}' נוסף לרשימה למילוי עד 7 מועדים.`);
+    addLog("info", `התזמון החדש '${name}' נוסף לרשימה.`);
   }
 
   writeJson(SCHEDULES_FILE, schedules);
@@ -819,6 +819,35 @@ app.delete("/api/schedules/:id", (req, res) => {
     res.json({ success: true, schedules });
   } else {
     res.status(404).json({ error: "התזמון לא נמצא." });
+  }
+});
+
+// Stop active program — DELETE /homeappliances/{haId}/programs/active
+app.post("/api/appliances/:haId/stop", async (req, res) => {
+  const { haId } = req.params;
+  try {
+    if (config.useSimulator) {
+      shimAppliance.operationState = "Ready";
+      shimAppliance.activeProgram = undefined;
+      addLog("info", `[סימולטור] בקשת עצירה: המדיח אופס למצב Ready.`);
+      return res.json({ success: true, message: "נשלחה בקשת עצירה (סימולטור)" });
+    }
+
+    if (!config.accessToken) {
+      return res.status(401).json({ error: "לא מחובר. נא לבצע אימות OAuth." });
+    }
+
+    await fetchHomeConnect(`/homeappliances/${encodeURIComponent(haId)}/programs/active`, "DELETE");
+    addLog("info", `בקשת עצירת תוכנית נשלחה בהצלחה למדיח ${haId}.`);
+    return res.json({ success: true, message: "הפעולה הופסקה" });
+  } catch (err: any) {
+    const httpStatus = err?.status || 500;
+    addLog("error", `כשלון בעצירת המדיח ${haId}: ${err.message}`);
+    return res.status(httpStatus >= 400 ? httpStatus : 500).json({
+      error: "העצירה נכשלה",
+      httpStatus,
+      debug: err.message,
+    });
   }
 });
 

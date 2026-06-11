@@ -65,7 +65,7 @@ export const ScheduleForm: React.FC<ScheduleFormProps> = ({
       });
 
       if (success) {
-        setSuccessMsg("התזמון נוסף בהצלחה למול רשימת 7 ההפעלות!");
+        setSuccessMsg("התזמון נוסף בהצלחה!");
         setName("");
         setTime("");
         setOneTimeDate("");
@@ -85,14 +85,14 @@ export const ScheduleForm: React.FC<ScheduleFormProps> = ({
         <PlusCircle className="w-5 h-5 text-[#005f7a]" />
         הגדרת הפעלה מתוזמנת חדשה
         <span className="text-xs font-normal text-slate-500 mr-auto">
-          ({pendingCount}/7 ממתינים)
+          ({pendingCount}/50 ממתינים)
         </span>
       </h3>
 
       {/* Warning if max exceeded */}
-      {pendingCount >= 7 && (
+      {pendingCount >= 50 && (
         <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs text-amber-700 mb-4 leading-relaxed">
-          ⚠️ הגעת למכסה המרבית של 7 הפעלות עתידיות תלויות. מחק או בטל הפעלה קיימת כדי לפנות מקום להגדרה חדשה.
+          ⚠️ הגעת למכסה המרבית של 50 תזמונים ממתינים. מחק תזמון קיים כדי לפנות מקום.
         </div>
       )}
 
@@ -105,7 +105,7 @@ export const ScheduleForm: React.FC<ScheduleFormProps> = ({
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            disabled={pendingCount >= 7 || loading}
+            disabled={pendingCount >= 50 || loading}
             placeholder="למשל: הדחה יומית אחרי ארוחת ערב"
             className="w-full bg-white border border-slate-300 focus:border-[#005f7a] focus:ring-1 focus:ring-[#005f7a] rounded px-3.5 py-2 text-sm text-slate-800 outline-none transition-all font-semibold"
           />
@@ -117,7 +117,7 @@ export const ScheduleForm: React.FC<ScheduleFormProps> = ({
           <select
             value={program}
             onChange={(e) => setProgram(e.target.value)}
-            disabled={pendingCount >= 7 || loading}
+            disabled={pendingCount >= 50 || loading}
             className="w-full bg-white border border-slate-300 focus:border-[#005f7a] focus:ring-1 focus:ring-[#005f7a] rounded px-3.5 py-2 text-sm text-slate-800 outline-none transition-all font-semibold cursor-pointer"
           >
             {programs.map((prog) => (
@@ -137,7 +137,7 @@ export const ScheduleForm: React.FC<ScheduleFormProps> = ({
             <select
               value={dayOfWeek}
               onChange={(e) => setDayOfWeek(Number(e.target.value))}
-              disabled={pendingCount >= 7 || loading}
+              disabled={pendingCount >= 50 || loading}
               className="w-full bg-white border border-slate-300 focus:border-[#005f7a] focus:ring-1 focus:ring-[#005f7a] rounded px-3.5 py-2 text-sm text-slate-800 outline-none transition-all font-semibold cursor-pointer"
             >
               <option value={1}>כל יום שני</option>
@@ -159,7 +159,7 @@ export const ScheduleForm: React.FC<ScheduleFormProps> = ({
               type="time"
               value={time}
               onChange={(e) => setTime(e.target.value)}
-              disabled={pendingCount >= 7 || loading}
+              disabled={pendingCount >= 50 || loading}
               className="w-full bg-white border border-slate-300 focus:border-[#005f7a] focus:ring-1 focus:ring-[#005f7a] rounded px-3.5 py-2 text-sm text-slate-800 outline-none transition-all font-mono font-bold"
             />
           </div>
@@ -173,7 +173,7 @@ export const ScheduleForm: React.FC<ScheduleFormProps> = ({
               type="date"
               value={oneTimeDate}
               onChange={(e) => setOneTimeDate(e.target.value)}
-              disabled={pendingCount >= 7 || loading}
+              disabled={pendingCount >= 50 || loading}
               min={new Date().toISOString().split("T")[0]}
               className="w-full bg-white border border-slate-300 focus:border-[#005f7a] focus:ring-1 focus:ring-[#005f7a] rounded px-3.5 py-2 text-sm text-slate-800 outline-none transition-all font-semibold cursor-pointer"
             />
@@ -195,9 +195,9 @@ export const ScheduleForm: React.FC<ScheduleFormProps> = ({
 
         <button
           type="submit"
-          disabled={pendingCount >= 7 || loading}
+          disabled={pendingCount >= 50 || loading}
           className={`w-full py-2.5 rounded text-sm font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm ${
-            pendingCount >= 7
+            pendingCount >= 50
               ? "bg-slate-200 text-slate-400 cursor-not-allowed"
               : "bg-[#005f7a] hover:bg-[#00465a] text-white"
           }`}
