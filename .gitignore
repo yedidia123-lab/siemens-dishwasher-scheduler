@@ -9,3 +9,4 @@ coverage/
 
 # Runtime data — contains tokens and secrets, NEVER commit!
 data/*.json
+
