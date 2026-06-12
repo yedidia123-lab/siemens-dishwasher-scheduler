@@ -23,12 +23,12 @@ export const StatusWidget: React.FC<StatusWidgetProps> = ({
 
   if (loading) {
     return (
-      <div className="bg-[#1a2d42] border border-slate-700/70 rounded-2xl p-5">
-        <div className="animate-pulse space-y-3">
-          <div className="h-3.5 bg-slate-700 rounded-full w-1/3" />
-          <div className="h-5 bg-slate-700 rounded-full w-1/2" />
+      <div className="bg-[#18182a] border border-[#252538] rounded-2xl p-5">
+        <div className="space-y-3">
+          <div className="h-3 skeleton rounded-full w-1/3" />
+          <div className="h-5 skeleton rounded-full w-1/2" />
           <div className="grid grid-cols-2 gap-2 pt-2">
-            {[0,1,2,3].map(i => <div key={i} className="h-16 bg-slate-800 rounded-xl" />)}
+            {[0,1,2,3].map(i => <div key={i} className="h-16 skeleton rounded-xl" />)}
           </div>
         </div>
       </div>
@@ -37,10 +37,10 @@ export const StatusWidget: React.FC<StatusWidgetProps> = ({
 
   if (!appliance) {
     return (
-      <div className="bg-[#1a2d42] border border-slate-700/70 rounded-2xl p-6 text-center">
-        <Wifi className="w-8 h-8 text-slate-600 mx-auto mb-3" />
+      <div className="bg-[#18182a] border border-[#252538] rounded-2xl p-6 text-center">
+        <Wifi className="w-8 h-8 text-[#252538] mx-auto mb-3" />
         <p className="text-sm font-semibold text-amber-400 mb-1">לא נמצא מדיח מחובר</p>
-        <p className="text-xs text-slate-500">ודא שהתחברת ב-Home Connect ומכשיר דלוק</p>
+        <p className="text-xs text-[#4e4e6a]">ודא שהתחברת ב-Home Connect ומכשיר דלוק</p>
       </div>
     );
   }
@@ -110,32 +110,32 @@ export const StatusWidget: React.FC<StatusWidgetProps> = ({
   ];
 
   return (
-    <div className="bg-[#1a2d42] border border-slate-700/70 rounded-2xl overflow-hidden">
-      {/* Top accent line */}
-      <div className="h-[2px] bg-gradient-to-l from-sky-600 to-sky-400" />
+    <div className="bg-[#18182a] border border-[#252538] rounded-2xl overflow-hidden">
+      {/* Gold accent line */}
+      <div className="h-[1.5px] bg-gradient-to-l from-[#c9a84c]/60 via-[#c9a84c]/30 to-transparent" />
 
       <div className="p-5">
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
           <div>
             <div className="flex items-center gap-2 mb-0.5">
-              <span className="text-[10px] font-bold text-sky-400/80 uppercase tracking-widest">
+              <span className="text-[10px] font-semibold text-[#c9a84c]/70 uppercase tracking-widest">
                 {appliance.brand}
               </span>
               {useSimulator && (
-                <span className="px-2 py-0.5 bg-purple-900/50 text-purple-300 border border-purple-700/60 rounded-full text-[10px] font-bold">
+                <span className="px-2 py-0.5 bg-purple-950/60 text-purple-300 border border-purple-800/50 rounded-full text-[10px] font-semibold">
                   SIM
                 </span>
               )}
             </div>
-            <h3 className="text-base font-bold text-slate-100">{appliance.name}</h3>
+            <h3 className="text-base font-semibold text-[#e8e4f0]">{appliance.name}</h3>
           </div>
           <button
             onClick={onRefresh}
-            className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-slate-200 border border-slate-700 transition-colors cursor-pointer min-h-[40px] min-w-[40px] flex items-center justify-center"
+            className="p-2 rounded-xl bg-[#13131e] hover:bg-[#1e1e30] text-[#4e4e6a] hover:text-[#8b8aa0] border border-[#252538] transition-colors cursor-pointer min-h-[40px] min-w-[40px] flex items-center justify-center"
             title="רענן"
           >
-            <RotateCcw className="w-4 h-4" />
+            <RotateCcw className="w-3.5 h-3.5" />
           </button>
         </div>
 
@@ -144,11 +144,11 @@ export const StatusWidget: React.FC<StatusWidgetProps> = ({
           {statusItems.map((item, i) => {
             if (item.isRunning !== undefined) {
               return (
-                <div key={i} className="bg-slate-900/50 rounded-xl p-3 border border-slate-700/50">
-                  <p className="text-[10px] text-slate-500 font-semibold uppercase tracking-wide mb-1.5">{item.label}</p>
+                <div key={i} className="bg-[#0d0d18] rounded-xl p-3 border border-[#252538]">
+                  <p className="text-[10px] text-[#4e4e6a] font-semibold uppercase tracking-wide mb-1.5">{item.label}</p>
                   <div className="flex items-center gap-1.5">
-                    <span className={`w-2 h-2 rounded-full shrink-0 ${item.isRunning ? "bg-sky-400 dot-pulse" : "bg-emerald-400"}`} />
-                    <span className={`text-sm font-bold ${item.isRunning ? "text-sky-300" : "text-emerald-300"}`}>
+                    <span className={`w-2 h-2 rounded-full shrink-0 ${item.isRunning ? "bg-[#c9a84c] dot-pulse" : "bg-emerald-400"}`} />
+                    <span className={`text-sm font-semibold ${item.isRunning ? "text-[#e0c87a]" : "text-emerald-300"}`}>
                       {item.isRunning ? "פועל" : item.okText}
                     </span>
                   </div>
@@ -156,23 +156,23 @@ export const StatusWidget: React.FC<StatusWidgetProps> = ({
               );
             }
             return (
-              <div key={i} className="bg-slate-900/50 rounded-xl p-3 border border-slate-700/50">
-                <p className="text-[10px] text-slate-500 font-semibold uppercase tracking-wide mb-1.5">{item.label}</p>
+              <div key={i} className="bg-[#0d0d18] rounded-xl p-3 border border-[#252538]">
+                <p className="text-[10px] text-[#4e4e6a] font-semibold uppercase tracking-wide mb-1.5">{item.label}</p>
                 <div className="flex items-center gap-1.5">
                   {(item as any).unknown ? (
                     <>
                       <AlertTriangle className="w-4 h-4 text-amber-400" />
-                      <span className="text-sm font-bold text-amber-300">לא ידוע</span>
+                      <span className="text-sm font-semibold text-amber-300">לא ידוע</span>
                     </>
                   ) : item.ok ? (
                     <>
                       <item.OkIcon className="w-4 h-4 text-emerald-400" />
-                      <span className="text-sm font-bold text-emerald-300">{item.okText}</span>
+                      <span className="text-sm font-semibold text-emerald-300">{item.okText}</span>
                     </>
                   ) : (
                     <>
                       <item.FailIcon className="w-4 h-4 text-rose-400" />
-                      <span className="text-sm font-bold text-rose-300">{item.failText}</span>
+                      <span className="text-sm font-semibold text-rose-300">{item.failText}</span>
                     </>
                   )}
                 </div>
@@ -183,16 +183,16 @@ export const StatusWidget: React.FC<StatusWidgetProps> = ({
 
         {/* Active program + stop button */}
         {isRunning && appliance.activeProgram && (
-          <div className="bg-sky-950/60 border border-sky-800/60 rounded-xl p-3 mb-3 flex items-center justify-between gap-2">
+          <div className="bg-[#1a1622] border border-[#c9a84c]/20 rounded-xl p-3 mb-3 flex items-center justify-between gap-2">
             <div>
-              <p className="text-[10px] text-sky-500 font-bold uppercase tracking-wide mb-0.5">פועל כעת</p>
-              <p className="text-sm font-bold text-sky-200">{getProgramLabel(appliance.activeProgram)}</p>
+              <p className="text-[10px] text-[#c9a84c]/70 font-semibold uppercase tracking-wide mb-0.5">פועל כעת</p>
+              <p className="text-sm font-semibold text-[#e8ddc0]">{getProgramLabel(appliance.activeProgram)}</p>
             </div>
             {onStop && (
               <button
                 onClick={handleStop}
                 disabled={stopping}
-                className="flex items-center gap-1.5 px-3 py-2 bg-rose-700 hover:bg-rose-600 disabled:bg-rose-900 text-white text-xs font-bold rounded-xl transition-colors cursor-pointer shrink-0 min-h-[40px]"
+                className="flex items-center gap-1.5 px-3 py-2 bg-rose-800 hover:bg-rose-700 disabled:bg-rose-950 text-white text-xs font-semibold rounded-xl transition-colors cursor-pointer shrink-0 min-h-[40px]"
               >
                 {stopping
                   ? <><Loader className="w-3.5 h-3.5 animate-spin" /> עוצר...</>
@@ -204,35 +204,35 @@ export const StatusWidget: React.FC<StatusWidgetProps> = ({
 
         {/* Simulator controls */}
         {useSimulator && (
-          <div className="pt-3 border-t border-slate-700/60">
-            <p className="text-[10px] font-bold text-purple-400 mb-2 uppercase tracking-wide">בקרת סימולציה</p>
+          <div className="pt-3 border-t border-[#252538]">
+            <p className="text-[10px] font-semibold text-purple-400/70 mb-2 uppercase tracking-wide">בקרת סימולציה</p>
             <div className="flex flex-wrap gap-1.5">
               <button
                 onClick={() => onSimulatorAction("toggleDoor")}
-                className={`text-xs px-3 py-2 rounded-xl border font-semibold transition-colors cursor-pointer min-h-[36px] ${
+                className={`text-xs px-3 py-1.5 rounded-lg border font-medium transition-colors cursor-pointer min-h-[34px] ${
                   appliance.doorState === "Closed"
-                    ? "bg-rose-950/60 border-rose-800/60 text-rose-300 hover:bg-rose-900/60"
-                    : "bg-emerald-950/60 border-emerald-800/60 text-emerald-300 hover:bg-emerald-900/60"
+                    ? "bg-rose-950/40 border-rose-900/50 text-rose-300 hover:bg-rose-950/60"
+                    : "bg-emerald-950/40 border-emerald-900/50 text-emerald-300 hover:bg-emerald-950/60"
                 }`}
               >
                 {appliance.doorState === "Closed" ? "פתח דלת" : "סגור דלת"}
               </button>
               <button
                 onClick={() => onSimulatorAction("toggleRemote")}
-                className={`text-xs px-3 py-2 rounded-xl border font-semibold transition-colors cursor-pointer min-h-[36px] ${
+                className={`text-xs px-3 py-1.5 rounded-lg border font-medium transition-colors cursor-pointer min-h-[34px] ${
                   appliance.remoteStartAllowed
-                    ? "bg-rose-950/60 border-rose-800/60 text-rose-300 hover:bg-rose-900/60"
-                    : "bg-emerald-950/60 border-emerald-800/60 text-emerald-300 hover:bg-emerald-900/60"
+                    ? "bg-rose-950/40 border-rose-900/50 text-rose-300 hover:bg-rose-950/60"
+                    : "bg-emerald-950/40 border-emerald-900/50 text-emerald-300 hover:bg-emerald-950/60"
                 }`}
               >
                 {appliance.remoteStartAllowed ? "בטל Remote" : "אפשר Remote"}
               </button>
               <button
                 onClick={() => onSimulatorAction("toggleConnected")}
-                className={`text-xs px-3 py-2 rounded-xl border font-semibold transition-colors cursor-pointer min-h-[36px] ${
+                className={`text-xs px-3 py-1.5 rounded-lg border font-medium transition-colors cursor-pointer min-h-[34px] ${
                   appliance.connected
-                    ? "bg-rose-950/60 border-rose-800/60 text-rose-300 hover:bg-rose-900/60"
-                    : "bg-emerald-950/60 border-emerald-800/60 text-emerald-300 hover:bg-emerald-900/60"
+                    ? "bg-rose-950/40 border-rose-900/50 text-rose-300 hover:bg-rose-950/60"
+                    : "bg-emerald-950/40 border-emerald-900/50 text-emerald-300 hover:bg-emerald-950/60"
                 }`}
               >
                 {appliance.connected ? "נתק WiFi" : "חבר WiFi"}
@@ -240,7 +240,7 @@ export const StatusWidget: React.FC<StatusWidgetProps> = ({
               {isRunning && (
                 <button
                   onClick={() => onSimulatorAction("resetState")}
-                  className="text-xs px-3 py-2 bg-slate-700 hover:bg-slate-600 border border-slate-600 text-slate-300 rounded-xl transition-colors cursor-pointer font-semibold min-h-[36px]"
+                  className="text-xs px-3 py-1.5 bg-[#13131e] hover:bg-[#1e1e30] border border-[#252538] text-[#6e6e8a] rounded-lg transition-colors cursor-pointer font-medium min-h-[34px]"
                 >
                   אפס מחזור
                 </button>

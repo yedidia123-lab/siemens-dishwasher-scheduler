@@ -31,7 +31,7 @@ export const ScheduleForm: React.FC<ScheduleFormProps> = ({
   pendingCount,
 }) => {
   const [name, setName] = useState("");
-  const [dayOfWeek, setDayOfWeek] = useState<number>(5); // שישי
+  const [dayOfWeek, setDayOfWeek] = useState<number>(5);
   const [oneTimeDate, setOneTimeDate] = useState("");
   const [time, setTime] = useState("22:00");
   const [program, setProgram] = useState("");
@@ -82,28 +82,28 @@ export const ScheduleForm: React.FC<ScheduleFormProps> = ({
   const isAtLimit = pendingCount >= 50;
 
   return (
-    <div className="bg-[#1a2d42] border border-slate-700/70 rounded-2xl p-5 space-y-4 animate-fade-in">
+    <div className="bg-[#18182a] border border-[#252538] rounded-2xl p-5 space-y-4 animate-fade-in">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2">
-          <PlusCircle className="w-4 h-4 text-sky-400" />
+        <h3 className="text-sm font-semibold text-[#e8e4f0] flex items-center gap-2">
+          <PlusCircle className="w-4 h-4 text-[#c9a84c]" />
           תזמון חדש
         </h3>
-        <span className="text-xs text-slate-500 font-semibold">
-          {pendingCount}/50
+        <span className="text-xs text-[#4e4e6a] font-medium tabular-nums">
+          {pendingCount}<span className="text-[#2e2e48]">/50</span>
         </span>
       </div>
 
       {isAtLimit && (
-        <div className="bg-amber-950/50 border border-amber-800/60 rounded-xl p-3 text-xs text-amber-300">
-          ⚠️ הגעת למכסה המרבית של 50 תזמונים. מחק תזמון כדי להוסיף חדש.
+        <div className="bg-amber-950/30 border border-amber-900/50 rounded-xl p-3 text-xs text-amber-300 font-medium">
+          הגעת למכסה המרבית של 50 תזמונים. מחק תזמון כדי להוסיף חדש.
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-3.5">
+      <form onSubmit={handleSubmit} className="space-y-3">
         {/* Name */}
         <div>
-          <label className="block text-[11px] text-slate-400 font-semibold mb-1.5">שם / תיאור</label>
+          <label className="block text-[11px] text-[#6e6e8a] font-semibold mb-1.5 uppercase tracking-wide">שם / תיאור</label>
           <input
             type="text"
             value={name}
@@ -116,7 +116,7 @@ export const ScheduleForm: React.FC<ScheduleFormProps> = ({
 
         {/* Program */}
         <div>
-          <label className="block text-[11px] text-slate-400 font-semibold mb-1.5">תוכנית הדחה</label>
+          <label className="block text-[11px] text-[#6e6e8a] font-semibold mb-1.5 uppercase tracking-wide">תוכנית הדחה</label>
           <select
             value={program}
             onChange={e => setProgram(e.target.value)}
@@ -134,7 +134,7 @@ export const ScheduleForm: React.FC<ScheduleFormProps> = ({
         {/* Day + Time */}
         <div className="grid grid-cols-2 gap-2.5">
           <div>
-            <label className="block text-[11px] text-slate-400 font-semibold mb-1.5 flex items-center gap-1">
+            <label className="block text-[11px] text-[#6e6e8a] font-semibold mb-1.5 uppercase tracking-wide flex items-center gap-1">
               <Calendar className="w-3 h-3" /> יום
             </label>
             <select
@@ -155,7 +155,7 @@ export const ScheduleForm: React.FC<ScheduleFormProps> = ({
           </div>
 
           <div>
-            <label className="block text-[11px] text-slate-400 font-semibold mb-1.5 flex items-center gap-1">
+            <label className="block text-[11px] text-[#6e6e8a] font-semibold mb-1.5 uppercase tracking-wide flex items-center gap-1">
               <Clock className="w-3 h-3" /> שעה
             </label>
             <input
@@ -171,7 +171,7 @@ export const ScheduleForm: React.FC<ScheduleFormProps> = ({
         {/* Specific date */}
         {dayOfWeek === -1 && (
           <div className="animate-fade-in">
-            <label className="block text-[11px] text-slate-400 font-semibold mb-1.5">תאריך</label>
+            <label className="block text-[11px] text-[#6e6e8a] font-semibold mb-1.5 uppercase tracking-wide">תאריך</label>
             <input
               type="date"
               value={oneTimeDate}
@@ -185,12 +185,12 @@ export const ScheduleForm: React.FC<ScheduleFormProps> = ({
 
         {/* Messages */}
         {errorMsg && (
-          <div className="bg-rose-950/60 border border-rose-800/60 rounded-xl px-3 py-2.5 text-xs text-rose-300 font-semibold">
+          <div className="bg-rose-950/30 border border-rose-900/50 rounded-xl px-3 py-2.5 text-xs text-rose-300 font-medium">
             {errorMsg}
           </div>
         )}
         {successMsg && (
-          <div className="bg-emerald-950/60 border border-emerald-800/60 rounded-xl px-3 py-2.5 text-xs text-emerald-300 font-semibold flex items-center gap-1.5">
+          <div className="bg-emerald-950/30 border border-emerald-900/50 rounded-xl px-3 py-2.5 text-xs text-emerald-300 font-medium flex items-center gap-1.5">
             <Sparkles className="w-3.5 h-3.5" />
             {successMsg}
           </div>
@@ -200,10 +200,10 @@ export const ScheduleForm: React.FC<ScheduleFormProps> = ({
         <button
           type="submit"
           disabled={isAtLimit || loading}
-          className={`w-full py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 cursor-pointer min-h-[48px] ${
+          className={`w-full py-3 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 cursor-pointer min-h-[48px] ${
             isAtLimit
-              ? "bg-slate-700 text-slate-500 cursor-not-allowed"
-              : "bg-sky-600 hover:bg-sky-500 active:bg-sky-700 text-white shadow-lg shadow-sky-900/30"
+              ? "bg-[#13131e] text-[#3a3a55] cursor-not-allowed border border-[#252538]"
+              : "bg-[#c9a84c] hover:bg-[#d4b55a] active:bg-[#b89640] text-[#0b0b12] shadow-lg shadow-[#c9a84c]/15"
           }`}
         >
           <PlusCircle className="w-4 h-4" />

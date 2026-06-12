@@ -430,33 +430,34 @@ export default function App() {
   const hasLogError = logs.length > 0 && logs[0].level === "error";
 
   return (
-    <div className="min-h-screen bg-[#0f172a] text-slate-100 font-sans" style={{ direction: "rtl" }}>
+    <div className="min-h-screen bg-[#0b0b12] text-[#e8e4f0] font-sans" style={{ direction: "rtl" }}>
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
       {confirm && (
         <ConfirmDialog message={confirm.message} onConfirm={confirm.onConfirm} onCancel={cancelConfirm} />
       )}
 
       {/* ── Header ── */}
-      <header className="sticky top-0 z-40 bg-[#0d1a2b]/95 backdrop-blur-md border-b border-slate-700/60">
+      <header className="sticky top-0 z-40 bg-[#090910]/98 backdrop-blur-md border-b border-[#1e1e2e]">
+        <div className="h-[1px] bg-gradient-to-r from-transparent via-[#c9a84c]/35 to-transparent" />
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 bg-sky-600 rounded-xl flex items-center justify-center shrink-0">
-              <Waves className="w-4 h-4 text-white" />
+            <div className="w-8 h-8 bg-[#c9a84c]/12 border border-[#c9a84c]/25 rounded-xl flex items-center justify-center shrink-0">
+              <Waves className="w-4 h-4 text-[#c9a84c]" />
             </div>
             <div>
-              <p className="text-sm font-bold text-slate-100 leading-none">ShabbatDish</p>
-              <p className="text-[10px] text-slate-500 leading-none mt-0.5">
+              <p className="text-sm font-semibold text-[#e8e4f0] leading-none tracking-wide">ShabbatDish</p>
+              <p className="text-[10px] text-[#4e4e6a] leading-none mt-0.5">
                 {config?.useSimulator ? "סימולטור" : "Home Connect API"}
               </p>
             </div>
           </div>
 
           {/* Desktop tabs */}
-          <nav className="hidden md:flex items-center gap-1 bg-slate-800/60 border border-slate-700/60 rounded-xl p-1">
+          <nav className="hidden md:flex items-center gap-1 bg-[#13131e] border border-[#252538] rounded-xl p-1">
             {tabs.map(t => (
               <button key={t.id} onClick={() => setActiveTab(t.id)}
                 className={`relative px-4 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer flex items-center gap-1.5 min-h-[34px] ${
-                  activeTab === t.id ? "bg-sky-600 text-white shadow-sm" : "text-slate-400 hover:text-slate-200 hover:bg-slate-700/60"
+                  activeTab === t.id ? "bg-[#c9a84c] text-[#0b0b12] font-bold shadow-sm" : "text-[#6e6e8a] hover:text-[#e8e4f0] hover:bg-[#1e1e30]"
                 }`}>
                 {t.id === "logs" && hasLogError && (
                   <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-rose-500 rounded-full" />
@@ -471,7 +472,7 @@ export default function App() {
             <span className={`w-2 h-2 rounded-full shrink-0 ${config?.hasToken || config?.useSimulator ? "bg-emerald-400" : "bg-amber-400"}`} />
             {!config?.hasToken && !config?.useSimulator && (
               <button onClick={handleConnectOAuth}
-                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-bold transition-colors cursor-pointer">
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-[#c9a84c] hover:bg-[#d4b55a] text-[#0b0b12] rounded-xl text-xs font-bold transition-colors cursor-pointer">
                 התחבר
               </button>
             )}
@@ -481,13 +482,13 @@ export default function App() {
 
       <main className="max-w-5xl mx-auto px-4 pt-5 pb-28 md:pb-8">
         {/* Status strip */}
-        <div className="flex items-center justify-between bg-slate-800/40 border border-slate-700/50 rounded-2xl px-4 py-2.5 mb-5 text-xs">
-          <div className="flex items-center gap-3 text-slate-400">
-            <span>תזמונים: <strong className="text-sky-400">{pendingSchedulesCount}/50</strong></span>
+        <div className="flex items-center justify-between bg-[#13131e] border border-[#252538] rounded-2xl px-4 py-2.5 mb-5 text-xs">
+          <div className="flex items-center gap-3 text-[#6e6e8a]">
+            <span>תזמונים: <strong className="text-[#c9a84c]">{pendingSchedulesCount}/50</strong></span>
             {nextSchedule && (
               <span className="hidden sm:flex items-center gap-1">
-                <Clock className="w-3 h-3 text-sky-500" />
-                <strong className="text-slate-300">{nextSchedule}</strong>
+                <Clock className="w-3 h-3 text-[#c9a84c]/60" />
+                <strong className="text-[#a0a0bc]">{nextSchedule}</strong>
               </span>
             )}
           </div>
@@ -504,13 +505,13 @@ export default function App() {
         {activeTab === "scheduler" && (
           <div className="space-y-4 animate-fade-in">
             {!config?.hasToken && !config?.useSimulator && (
-              <div className="bg-sky-950/60 border border-sky-800/60 rounded-2xl p-4 flex items-center justify-between gap-3">
+              <div className="bg-[#1a1410] border border-[#c9a84c]/25 rounded-2xl p-4 flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-sm font-bold text-sky-200">לא מחובר ל-Home Connect</p>
-                  <p className="text-xs text-sky-400/70 mt-0.5">חבר חשבון כדי לשלוט במדיח האמיתי</p>
+                  <p className="text-sm font-semibold text-[#e8ddc0]">לא מחובר ל-Home Connect</p>
+                  <p className="text-xs text-[#6e6e8a] mt-0.5">חבר חשבון כדי לשלוט במדיח האמיתי</p>
                 </div>
                 <button onClick={handleConnectOAuth}
-                  className="px-4 py-2.5 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-sm font-bold transition-colors cursor-pointer shrink-0 min-h-[44px]">
+                  className="px-4 py-2.5 bg-[#c9a84c] hover:bg-[#d4b55a] text-[#0b0b12] rounded-xl text-sm font-bold transition-colors cursor-pointer shrink-0 min-h-[44px]">
                   התחבר
                 </button>
               </div>
@@ -548,22 +549,22 @@ export default function App() {
 
                 {/* Recent logs preview */}
                 {logs.length > 0 && (
-                  <div className="bg-[#1a2d42] border border-slate-700/70 rounded-2xl p-4">
+                  <div className="bg-[#18182a] border border-[#252538] rounded-2xl p-4">
                     <div className="flex items-center justify-between mb-3">
-                      <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wide flex items-center gap-1.5">
+                      <h4 className="text-xs font-semibold text-[#6e6e8a] uppercase tracking-wide flex items-center gap-1.5">
                         <Activity className="w-3.5 h-3.5" />אירועים אחרונים
                       </h4>
                       <button onClick={() => setActiveTab("logs")}
-                        className="text-xs text-sky-400 hover:text-sky-300 cursor-pointer font-semibold">הצג הכל</button>
+                        className="text-xs text-[#c9a84c] hover:text-[#d4b55a] cursor-pointer font-semibold">הצג הכל</button>
                     </div>
                     <div className="space-y-1.5">
                       {logs.slice(0, 3).map((log, i) => (
                         <div key={i} className={`flex items-start gap-2 text-xs px-2.5 py-1.5 rounded-xl ${
-                          log.level === "error" ? "bg-rose-950/50 text-rose-300" :
-                          log.level === "warn"  ? "bg-amber-950/50 text-amber-300" :
-                          "bg-slate-800/50 text-slate-400"
+                          log.level === "error" ? "bg-rose-950/40 text-rose-300" :
+                          log.level === "warn"  ? "bg-amber-950/40 text-amber-300" :
+                          "bg-[#13131e] text-[#6e6e8a]"
                         }`}>
-                          <span className="text-[10px] text-slate-600 shrink-0 font-mono mt-0.5">
+                          <span className="text-[10px] text-[#3a3a55] shrink-0 font-mono mt-0.5">
                             {new Date(log.timestamp).toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" })}
                           </span>
                           <span className="leading-snug">{log.message}</span>
@@ -574,45 +575,45 @@ export default function App() {
                 )}
 
                 {/* Safety gates */}
-                <div className="bg-[#1a2d42] border border-slate-700/70 rounded-2xl p-4">
-                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wide flex items-center gap-1.5 mb-3">
-                    <ShieldCheck className="w-3.5 h-3.5 text-sky-500" />4 שערי בטיחות לפני כל הפעלה
+                <div className="bg-[#18182a] border border-[#252538] rounded-2xl p-4">
+                  <h4 className="text-xs font-semibold text-[#6e6e8a] uppercase tracking-wide flex items-center gap-1.5 mb-3">
+                    <ShieldCheck className="w-3.5 h-3.5 text-[#c9a84c]/70" />4 שערי בטיחות לפני כל הפעלה
                   </h4>
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     {[["דלת סגורה","חיישן דלת"],["Remote Start","אישור מהמכשיר"],["אין תוכנית פעילה","ללא התנגשות"],["תוכנית נתמכת","API validation"]].map(([h,d]) => (
-                      <div key={h} className="bg-slate-900/40 rounded-xl p-2.5 border border-slate-700/40">
+                      <div key={h} className="bg-[#0d0d18] rounded-xl p-2.5 border border-[#252538]">
                         <p className="font-semibold text-emerald-400 text-[11px]">{h}</p>
-                        <p className="text-slate-600 text-[10px] mt-0.5">{d}</p>
+                        <p className="text-[#3a3a55] text-[10px] mt-0.5">{d}</p>
                       </div>
                     ))}
                   </div>
                 </div>
 
                 {/* Developer area — collapsible */}
-                <details className="group bg-slate-800/30 border border-slate-700/50 rounded-2xl overflow-hidden">
-                  <summary className="flex items-center justify-between px-4 py-3 cursor-pointer select-none text-xs font-semibold text-slate-500 hover:text-slate-400 transition-colors list-none">
+                <details className="group bg-[#13131e] border border-[#252538] rounded-2xl overflow-hidden">
+                  <summary className="flex items-center justify-between px-4 py-3 cursor-pointer select-none text-xs font-semibold text-[#4e4e6a] hover:text-[#6e6e8a] transition-colors list-none">
                     <span className="flex items-center gap-1.5"><Settings className="w-3.5 h-3.5" />אזור מפתחים</span>
-                    <span className="group-open:rotate-180 transition-transform text-slate-600">▾</span>
+                    <span className="group-open:rotate-180 transition-transform text-[#3a3a55]">▾</span>
                   </summary>
-                  <div className="px-4 pb-4 pt-1 space-y-3 border-t border-slate-700/50">
+                  <div className="px-4 pb-4 pt-1 space-y-3 border-t border-[#252538]">
                     <div className="flex gap-2 pt-2">
                       <button
                         onClick={() => { setDeveloperMode(!developerMode); if (!developerMode) fetchDebugStatus(); }}
                         className={`px-3 py-1.5 text-xs rounded-xl font-semibold cursor-pointer transition-all border ${
-                          developerMode ? "bg-slate-700 text-slate-200 border-slate-600" : "bg-transparent text-slate-400 border-slate-700 hover:bg-slate-700/60"
+                          developerMode ? "bg-[#18182a] text-[#e8e4f0] border-[#252538]" : "bg-transparent text-[#4e4e6a] border-[#252538] hover:bg-[#18182a]"
                         }`}>
                         {developerMode ? "הסתר Debug" : "הצג Debug"}
                       </button>
                     </div>
                     {developerMode && (
                       <div className="space-y-3 text-xs">
-                        <div className="grid grid-cols-2 gap-2 bg-slate-900/50 p-3 rounded-xl">
+                        <div className="grid grid-cols-2 gap-2 bg-[#0d0d18] p-3 rounded-xl">
                           <div>
-                            <p className="text-[10px] text-slate-600 mb-1">שרת UTC</p>
-                            <code className="text-slate-300 font-mono text-[11px]">{debugData?.serverTimeUtc || "—"}</code>
+                            <p className="text-[10px] text-[#3a3a55] mb-1">שרת UTC</p>
+                            <code className="text-[#a0a0bc] font-mono text-[11px]">{debugData?.serverTimeUtc || "—"}</code>
                           </div>
                           <div>
-                            <p className="text-[10px] text-slate-600 mb-1">ישראל</p>
+                            <p className="text-[10px] text-[#3a3a55] mb-1">ישראל</p>
                             <code className="text-emerald-400 font-mono text-[11px]">
                               {debugData?.israelTime?.timeStr || "—"} {debugData?.israelTime?.success ? "✓" : ""}
                             </code>
@@ -625,21 +626,21 @@ export default function App() {
                               ? s.dayOfWeek === -1 ? `ממתין ל-${s.oneTimeDate} ${s.time}` : `ממתין ליום ${days[s.dayOfWeek]} ${s.time}`
                               : s.status;
                             return (
-                              <div key={s.id} className="flex justify-between items-center px-2 py-1.5 bg-slate-900/40 rounded-lg text-[11px]">
-                                <span className="text-sky-400 font-semibold">{s.name}</span>
-                                <span className="text-slate-500">{t}</span>
+                              <div key={s.id} className="flex justify-between items-center px-2 py-1.5 bg-[#0d0d18] rounded-lg text-[11px]">
+                                <span className="text-[#c9a84c] font-semibold">{s.name}</span>
+                                <span className="text-[#4e4e6a]">{t}</span>
                               </div>
                             );
                           })}
                         </div>
                         {programs.length > 0 && (
                           <div>
-                            <p className="text-[10px] text-slate-600 mb-1.5">תוכניות API</p>
+                            <p className="text-[10px] text-[#3a3a55] mb-1.5">תוכניות API</p>
                             <div className="grid grid-cols-2 gap-1.5 max-h-40 overflow-y-auto">
                               {programs.map(p => (
-                                <div key={p.key} className="bg-slate-900/40 rounded-lg p-2">
-                                  <p className="text-[11px] text-slate-300 font-semibold">{p.name}</p>
-                                  <p className="text-[9px] text-slate-600 font-mono mt-0.5">{p.key.split(".").pop()}</p>
+                                <div key={p.key} className="bg-[#0d0d18] rounded-lg p-2">
+                                  <p className="text-[11px] text-[#a0a0bc] font-semibold">{p.name}</p>
+                                  <p className="text-[9px] text-[#4e4e6a] font-mono mt-0.5">{p.key.split(".").pop()}</p>
                                 </div>
                               ))}
                             </div>
@@ -680,12 +681,12 @@ export default function App() {
       </main>
 
       {/* ── Mobile bottom nav ── */}
-      <nav className="fixed bottom-0 inset-x-0 md:hidden z-40 bg-[#0d1a2b]/95 backdrop-blur-md border-t border-slate-700/60 pb-safe">
+      <nav className="fixed bottom-0 inset-x-0 md:hidden z-40 bg-[#090910]/98 backdrop-blur-md border-t border-[#1e1e2e] pb-safe">
         <div className="flex">
           {tabs.map(t => (
             <button key={t.id} onClick={() => setActiveTab(t.id)}
               className={`flex-1 relative flex flex-col items-center pt-2.5 pb-3 gap-1 text-[11px] font-semibold transition-colors cursor-pointer min-h-[56px] ${
-                activeTab === t.id ? "text-sky-400" : "text-slate-600 hover:text-slate-400"
+                activeTab === t.id ? "text-[#c9a84c]" : "text-[#3a3a55] hover:text-[#6e6e8a]"
               }`}>
               {t.id === "logs" && hasLogError && (
                 <span className="absolute top-2 right-1/2 -translate-x-1 w-1.5 h-1.5 bg-rose-500 rounded-full" />
@@ -693,14 +694,14 @@ export default function App() {
               {t.icon}
               {t.label}
               {activeTab === t.id && (
-                <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-sky-500 rounded-full" />
+                <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-[#c9a84c] rounded-full" />
               )}
             </button>
           ))}
         </div>
       </nav>
 
-      <footer className="hidden md:block border-t border-slate-800 py-4 text-center text-[11px] text-slate-700">
+      <footer className="hidden md:block border-t border-[#1a1a28] py-4 text-center text-[11px] text-[#2e2e48]">
         ShabbatDish · Client Secret בשרת בלבד · תקשורת מוצפנת עם BSH Group
       </footer>
     </div>
